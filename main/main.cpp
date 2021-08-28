@@ -19,6 +19,7 @@
 #include "wifi.h"
 #include "ble.h"
 #include "webserver.h"
+#include "ota.h"
 #include "led.h"
 
 using namespace std::chrono_literals;
@@ -65,6 +66,7 @@ extern "C" void app_main()
     wifi_setup();
     ble_setup();
     webserver_setup();
+    ota_setup();
     led_setup();
 
     while (true)
@@ -77,6 +79,7 @@ extern "C" void app_main()
         wifi_update();
         ble_update();
         webserver_update();
+        ota_update();
         led_update();
     }
 }

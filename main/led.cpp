@@ -13,9 +13,8 @@
 #include <FastLED.h>
 #include <espchrono.h>
 
-#define LEDC_CHANNEL_0     0
-#define LEDC_CHANNEL_1     0
-#define LEDC_CHANNEL_2     0
+using namespace std::chrono_literals;
+
 #define LEDC_TIMER_13_BIT  13
 #define LEDC_BASE_FREQ     5000
 
@@ -25,10 +24,113 @@ std::array<CRGB, 5> leds;
 CRGBPalette16 currentPalette;
 TBlendType    currentBlending;
 
-extern CRGBPalette16 myRedWhiteBluePalette;
-extern const TProgmemPalette16 myRedWhiteBluePalette_p;
+const TProgmemPalette16 myRedWhiteBluePalette_p =
+{
+    CRGB::Red,
+    CRGB::Gray, // 'white' is too bright compared to red and blue
+    CRGB::Blue,
+    CRGB::Black,
+
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Black,
+
+    CRGB::Red,
+    CRGB::Red,
+    CRGB::Gray,
+    CRGB::Gray,
+    CRGB::Blue,
+    CRGB::Blue,
+    CRGB::Black,
+    CRGB::Black
+};
 
 void ledcAnalogWrite(uint8_t channel, uint32_t value, uint32_t valueMax = 255);
+void ChangePalettePeriodically();
+void FillLEDsFromPaletteColors( uint8_t colorIndex);
+
+espchrono::millis_clock::time_point lastRedraw{};
+}
+
+void led_setup()
+{
+    currentPalette = RainbowColors_p;
+    currentBlending = LINEARBLEND;
+
+    ledcSetup(0, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(1, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(2, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+
+    ledcSetup(3, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(4, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(5, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+
+    ledcSetup(6, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(7, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(8, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+
+    ledcSetup(9, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(10, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(11, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+
+    ledcSetup(12, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(13, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+    ledcSetup(14, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
+
+    ledcAttachPin(27, 0);
+    ledcAttachPin(33, 1);
+    ledcAttachPin(32, 2);
+
+    ledcAttachPin(23, 3);
+    ledcAttachPin(25, 4);
+    ledcAttachPin(26, 5);
+
+    ledcAttachPin(19, 6);
+    ledcAttachPin(21, 7);
+    ledcAttachPin(22, 8);
+
+    ledcAttachPin(18, 9);
+    ledcAttachPin(17, 10);
+    ledcAttachPin(16, 11);
+
+    ledcAttachPin(13, 12);
+    ledcAttachPin(14, 13);
+    ledcAttachPin(15, 14);
+}
+
+void led_update()
+{
+    if (espchrono::ago(lastRedraw) < 20ms)
+        return;
+    lastRedraw = espchrono::millis_clock::now();
+
+    ChangePalettePeriodically();
+
+    static uint8_t startIndex = 0;
+    startIndex = startIndex + 1; /* motion speed */
+
+    FillLEDsFromPaletteColors(startIndex);
+
+    ledcAnalogWrite(0, leds[0].red);
+    ledcAnalogWrite(1, leds[0].green);
+    ledcAnalogWrite(2, leds[0].blue);
+
+    ledcAnalogWrite(3, leds[1].red);
+    ledcAnalogWrite(4, leds[1].green);
+    ledcAnalogWrite(5, leds[1].blue);
+
+    ledcAnalogWrite(6, leds[2].red);
+    ledcAnalogWrite(7, leds[2].green);
+    ledcAnalogWrite(8, leds[2].blue);
+
+    ledcAnalogWrite(9, leds[3].red);
+    ledcAnalogWrite(10, leds[3].green);
+    ledcAnalogWrite(11, leds[3].blue);
+
+    ledcAnalogWrite(12, leds[4].red);
+    ledcAnalogWrite(13, leds[4].green);
+    ledcAnalogWrite(14, leds[4].blue);
 }
 
 namespace {
@@ -83,29 +185,6 @@ void SetupPurpleAndGreenPalette()
                                    purple, purple, black,  black );
 }
 
-const TProgmemPalette16 myRedWhiteBluePalette_p =
-{
-    CRGB::Red,
-    CRGB::Gray, // 'white' is too bright compared to red and blue
-    CRGB::Blue,
-    CRGB::Black,
-
-    CRGB::Red,
-    CRGB::Gray,
-    CRGB::Blue,
-    CRGB::Black,
-
-    CRGB::Red,
-    CRGB::Red,
-    CRGB::Gray,
-    CRGB::Gray,
-    CRGB::Blue,
-    CRGB::Blue,
-    CRGB::Black,
-    CRGB::Black
-};
-
-
 void ChangePalettePeriodically()
 {
     constexpr auto millis = []() -> unsigned int { return espchrono::millis_clock::now().time_since_epoch().count(); };
@@ -128,32 +207,4 @@ void ChangePalettePeriodically()
         if( secondHand == 55)  { currentPalette = myRedWhiteBluePalette_p; currentBlending = LINEARBLEND; }
     }
 }
-}
-
-
-void led_setup()
-{
-    currentPalette = RainbowColors_p;
-    currentBlending = LINEARBLEND;
-
-    ledcSetup(LEDC_CHANNEL_0, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
-    ledcSetup(LEDC_CHANNEL_1, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
-    ledcSetup(LEDC_CHANNEL_2, LEDC_BASE_FREQ, LEDC_TIMER_13_BIT);
-    ledcAttachPin(27, LEDC_CHANNEL_0);
-    ledcAttachPin(33, LEDC_CHANNEL_1);
-    ledcAttachPin(32, LEDC_CHANNEL_2);
-}
-
-void led_update()
-{
-    ChangePalettePeriodically();
-
-    static uint8_t startIndex = 0;
-    startIndex = startIndex + 1; /* motion speed */
-
-    FillLEDsFromPaletteColors( startIndex);
-
-    ledcAnalogWrite(LEDC_CHANNEL_0, leds[0].red);
-    ledcAnalogWrite(LEDC_CHANNEL_1, leds[0].green);
-    ledcAnalogWrite(LEDC_CHANNEL_2, leds[0].blue);
-}
+} // namespace
