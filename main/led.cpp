@@ -1,8 +1,5 @@
 #include "led.h"
 
-// system includes
-#include <array>
-
 // esp-idf includes
 #include <driver/ledc.h>
 
@@ -10,7 +7,6 @@
 #include <Arduino.h>
 
 // 3rdparty lib includes
-#include <FastLED.h>
 #include <espchrono.h>
 
 using namespace std::chrono_literals;
@@ -19,8 +15,6 @@ using namespace std::chrono_literals;
 #define LEDC_BASE_FREQ     5000
 
 namespace {
-std::array<CRGB, 5> leds;
-
 CRGBPalette16 currentPalette;
 TBlendType    currentBlending;
 
@@ -52,6 +46,9 @@ void FillLEDsFromPaletteColors( uint8_t colorIndex);
 
 espchrono::millis_clock::time_point lastRedraw{};
 }
+
+std::array<CRGB, 5> leds;
+bool ledAnimationEnabled{true};
 
 void led_setup()
 {
@@ -105,12 +102,15 @@ void led_update()
         return;
     lastRedraw = espchrono::millis_clock::now();
 
-    ChangePalettePeriodically();
+    if (ledAnimationEnabled)
+    {
+        ChangePalettePeriodically();
 
-    static uint8_t startIndex = 0;
-    startIndex = startIndex + 1; /* motion speed */
+        static uint8_t startIndex = 0;
+        startIndex = startIndex + 1; /* motion speed */
 
-    FillLEDsFromPaletteColors(startIndex);
+        FillLEDsFromPaletteColors(startIndex);
+    }
 
     ledcAnalogWrite(0, leds[0].red);
     ledcAnalogWrite(1, leds[0].green);

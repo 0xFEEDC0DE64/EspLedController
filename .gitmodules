@@ -40,3 +40,6 @@
 [submodule "components/espasyncota"]
 	path = components/espasyncota
 	url = git@github.com:0xFEEDC0DE64/espasyncota.git
+[submodule "components/espasyncudplistener"]
+	path = components/espasyncudplistener
+	url = git@github.com:0xFEEDC0DE64/espasyncudplistener

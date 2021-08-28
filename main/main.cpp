@@ -20,6 +20,8 @@
 #include "ble.h"
 #include "webserver.h"
 #include "ota.h"
+#include "udpcontrol.h"
+#include "udpcontrol.h"
 #include "led.h"
 
 using namespace std::chrono_literals;
@@ -67,6 +69,7 @@ extern "C" void app_main()
     ble_setup();
     webserver_setup();
     ota_setup();
+    udpcontrol_setup();
     led_setup();
 
     while (true)
@@ -80,6 +83,7 @@ extern "C" void app_main()
         ble_update();
         webserver_update();
         ota_update();
+        udpcontrol_update();
         led_update();
     }
 }

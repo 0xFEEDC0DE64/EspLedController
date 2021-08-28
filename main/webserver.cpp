@@ -13,6 +13,7 @@
 // local includes
 #include "wifi.h"
 #include "ota.h"
+#include "led.h"
 
 using namespace esphttpdutils;
 
@@ -23,6 +24,7 @@ httpd_handle_t httpdHandle;
 
 esp_err_t webserver_root_handler(httpd_req_t *req);
 esp_err_t webserver_ota_handler(httpd_req_t *req);
+esp_err_t webserver_set_handler(httpd_req_t *req);
 } // namespace
 
 void webserver_setup()
@@ -41,6 +43,7 @@ void webserver_setup()
     for (const httpd_uri_t &uri : {
          httpd_uri_t { .uri = "/",    .method = HTTP_GET, .handler = webserver_root_handler, .user_ctx = NULL },
          httpd_uri_t { .uri = "/ota", .method = HTTP_GET, .handler = webserver_ota_handler,  .user_ctx = NULL },
+         httpd_uri_t { .uri = "/set", .method = HTTP_GET, .handler = webserver_set_handler,  .user_ctx = NULL },
     })
     {
         const auto result = httpd_register_uri_handler(httpdHandle, &uri);
@@ -59,6 +62,13 @@ namespace {
 esp_err_t webserver_root_handler(httpd_req_t *req)
 {
     std::string body = fmt::format("<h1>{}</h1>", htmlentities(deviceName));
+
+    body += fmt::format(
+        "<form action=\"/set\">"
+        "<input type=\"hidden\" name=\"key\" value=\"ledAnimationEnabled\" />"
+        "<label>ledAnimationEnabled <input type=\"checkbox\" name=\"value\" value=\"on\"{} /></label>"
+        "<button type=\"submit\">Save</button>"
+        "</form>", ledAnimationEnabled ? " checked" : "");
 
     if (const auto otaStatus = asyncOta.status(); otaStatus == OtaCloudUpdateStatus::Idle)
     {
@@ -131,5 +141,33 @@ esp_err_t webserver_ota_handler(httpd_req_t *req)
     }
 
     CALL_AND_EXIT(webserver_resp_send_succ, req, "text/plain", "OTA called...")
+}
+
+esp_err_t webserver_set_handler(httpd_req_t *req)
+{
+    std::string query;
+
+    if (const size_t queryLength = httpd_req_get_url_query_len(req))
+    {
+        query.resize(queryLength);
+        CALL_AND_EXIT_ON_ERROR(httpd_req_get_url_query_str, req, query.data(), query.size() + 1)
+    }
+
+    char urlBufEncoded[256];
+    if (const auto result = httpd_query_key_value(query.data(), "url", urlBufEncoded, sizeof(urlBufEncoded)); result == ESP_ERR_NOT_FOUND)
+    {
+        CALL_AND_EXIT(webserver_resp_send_err, req, HTTPD_400_BAD_REQUEST, "text/plain", "url parameter missing")
+    }
+    else if (result != ESP_OK)
+    {
+        const auto msg = fmt::format("httpd_query_key_value() {} failed with {}", "url", esp_err_to_name(result));
+        ESP_LOGE(TAG, "%.*s", msg.size(), msg.data());
+        CALL_AND_EXIT(webserver_resp_send_err, req, HTTPD_400_BAD_REQUEST, "text/plain", msg)
+    }
+
+    char urlBuf[257];
+    esphttpdutils::urldecode(urlBuf, urlBufEncoded);
+
+    return ESP_OK;
 }
 }
