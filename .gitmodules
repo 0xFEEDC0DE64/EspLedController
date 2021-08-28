@@ -1,0 +1,36 @@
+[submodule "components/ArduinoJson"]
+	path = components/ArduinoJson
+	url = git@github.com:0xFEEDC0DE64/ArduinoJson.git
+[submodule "components/cpputils"]
+	path = components/cpputils
+	url = git@github.com:0xFEEDC0DE64/cpputils.git
+[submodule "esp-idf"]
+	path = esp-idf
+	url = git@github.com:0xFEEDC0DE64/esp-idf.git
+[submodule "components/date"]
+	path = components/date
+	url = git@github.com:0xFEEDC0DE64/date.git
+[submodule "components/espchrono"]
+	path = components/espchrono
+	url = git@github.com:0xFEEDC0DE64/espchrono.git
+[submodule "components/espcpputils"]
+	path = components/espcpputils
+	url = git@github.com:0xFEEDC0DE64/espcpputils.git
+[submodule "components/esphttpdutils"]
+	path = components/esphttpdutils
+	url = git@github.com:0xFEEDC0DE64/esphttpdutils.git
+[submodule "components/espwifistack"]
+	path = components/espwifistack
+	url = git@github.com:0xFEEDC0DE64/espwifistack.git
+[submodule "components/expected"]
+	path = components/expected
+	url = git@github.com:0xFEEDC0DE64/expected.git
+[submodule "components/FastLED-idf"]
+	path = components/FastLED-idf
+	url = git@github.com:0xFEEDC0DE64/FastLED-idf.git
+[submodule "components/fmt"]
+	path = components/fmt
+	url = git@github.com:0xFEEDC0DE64/fmt.git
+[submodule "components/arduino-esp32"]
+	path = components/arduino-esp32
+	url = git@github.com:0xFEEDC0DE64/arduino-esp32.git
