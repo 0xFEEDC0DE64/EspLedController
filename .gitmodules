@@ -34,3 +34,6 @@
 [submodule "components/arduino-esp32"]
 	path = components/arduino-esp32
 	url = git@github.com:0xFEEDC0DE64/arduino-esp32.git
+[submodule "components/esp-nimble-cpp"]
+	path = components/esp-nimble-cpp
+	url = git@github.com:0xFEEDC0DE64/esp-nimble-cpp.git

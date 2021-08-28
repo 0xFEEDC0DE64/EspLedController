@@ -1,13 +1,21 @@
 set(headers
+    ble.h
+    led.h
+    webserver.h
+    wifi.h
 )
 
 set(sources
+    ble.cpp
+    led.cpp
     main.cpp
+    webserver.cpp
+    wifi.cpp
 )
 
 set(dependencies
     freertos nvs_flash esp_http_server esp_https_ota mdns app_update esp_system esp_websocket_client driver
-    arduino-esp32 ArduinoJson FastLED-idf cpputils date espchrono espcpputils esphttpdutils espwifistack expected fmt
+    arduino-esp32 ArduinoJson FastLED-idf cpputils date espchrono espcpputils esp-nimble-cpp esphttpdutils espwifistack expected fmt
 )
 
 idf_component_register(
